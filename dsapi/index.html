@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Login no Google</title>
+  <meta charset="UTF-8">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <meta name="google-signin-client_id"
+    content="1065283420723-n62j8v7a9thujhg3fk69ld0a6g2kln96.apps.googleusercontent.com">
+</head>
+
+<body>
+  <h1>Login com o Google</h1>
+  <button onclick="handleLogin()">Fazer login com o Google</button>
+
+  <div id="userInfo" style="display: none;">
+    <p>Nome: <span id="userName"></span></p>
+    <p>E-mail: <span id="userEmail"></span></p>
+    <p>ID do usuário: <span id="userId"></span></p>
+    <p>Foto do perfil:</p>
+    <img id="userProfilePicture" alt="Foto do perfil" style="max-width: 200px;">
+  </div>
+
+  <script>
+    function handleLogin() {
+      google.accounts.id.initialize({
+        client_id: '1065283420723-n62j8v7a9thujhg3fk69ld0a6g2kln96.apps.googleusercontent.com',
+        callback: handleCredentialResponse,
+        auto_select: false
+      });
+      google.accounts.id.prompt((notification) => {
+        console.log(notification);
+        if (notification.isNotDisplayed()) {
+          console.log('O botão de login do Google não foi exibido.');
+        }
+      }, (error) => {
+        console.log('Ocorreu um erro: ' + error);
+      });
+    }
+
+    function base64UrlDecode(str) {
+      let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4) {
+        base64 += '=';
+      }
+      return atob(base64);
+    }
+
+    function handleCredentialResponse(response) {
+      const responsePayload = response.credential;
+      const token = responsePayload.split('.')[1]; // Extrai a parte do token de acesso do payload completo
+
+      // Decodifica o token de acesso
+      const decodedToken = JSON.parse(base64UrlDecode(token));
+
+      if (decodedToken) {
+        const userName = decodedToken.name;
+        const userEmail = decodedToken.email;
+        const userId = decodedToken.sub;
+        const userProfilePicture = decodedToken.picture;
+
+        // Atualiza os elementos HTML com as informações do usuário
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('userEmail').textContent = userEmail;
+        document.getElementById('userId').textContent = userId;
+        document.getElementById('userProfilePicture').src = userProfilePicture;
+
+        // Exibe as informações do usuário
+        document.getElementById('userInfo').style.display = 'block';
+      }
+    }
+  </script>
+</body>
+
+</html>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f8f0f4;
+    text-align: center;
+  }
+
+  h1 {
+    text-align: center;
+    color: #ff85a2;
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #ff85a2;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  #userInfo {
+      margin-top: 20px;
+      display: none;
+      background-color: #ffccd5;
+      padding: 20px;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: justify;
+    }
+
+    #userInfo p {
+      margin-bottom: 10px;
+      color: #fff;
+      font-weight: bold;
+    }
+
+
+  #userProfilePicture {
+    max-width: 200px;
+    border-radius: 4px;
+    margin-top: 10px;
+  }
+</style>
